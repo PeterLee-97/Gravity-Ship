@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Gravity Spaceship</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,14 +13,12 @@
             --text-color: #fff;
             --bg-color: #000010;
             --primary-accent: #00ccff;
-            
-            /* Font sizes for responsiveness */
             --font-size-sm: clamp(0.8rem, 2.5vw, 1rem);
             --font-size-md: clamp(1rem, 3vw, 1.25rem);
             --font-size-lg: clamp(1.5rem, 4vw, 2rem);
             --font-size-xl: clamp(2.5rem, 8vw, 4rem);
         }
-
+        .hidden { display: none !important; }
         body {
             margin: 0;
             overflow: hidden;
@@ -31,192 +29,102 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            touch-action: none;
         }
-
         canvas {
             background-color: var(--bg-color);
             cursor: crosshair;
             max-width: 100%;
             max-height: 100%;
-            aspect-ratio: 16 / 9; /* Maintain aspect ratio */
+            aspect-ratio: 16 / 9;
             border: 2px solid var(--glow-color);
             box-shadow: 0 0 20px var(--glow-color);
         }
-
         .screen-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 16, 0.95);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            padding: 20px;
-            box-sizing: border-box;
-            text-align: center;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 16, 0.95); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 100;
+            padding: 20px; box-sizing: border-box; text-align: center;
         }
-
         #uiOverlay {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            pointer-events: none;
-            flex-wrap: wrap; /* Allow wrapping on small screens */
-            gap: 10px;
+            position: absolute; top: 10px; left: 10px; right: 10px;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            pointer-events: none; flex-wrap: wrap; gap: 10px; z-index: 10;
         }
-
         #infoPanel {
-            padding: 15px;
-            background: rgba(0, 25, 50, 0.7);
-            border-radius: 10px;
-            border: 1px solid var(--glow-color);
-            box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
+            padding: 15px; background: rgba(0, 25, 50, 0.7); border-radius: 10px;
+            border: 1px solid var(--glow-color); box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
             pointer-events: auto;
         }
-
-        #infoPanel h1 {
-            margin: 0 0 10px 0;
-            font-size: var(--font-size-lg);
-            color: var(--primary-accent);
-            text-shadow: 0 0 5px var(--primary-accent);
-        }
-
-        #infoPanel p {
-            margin: 5px 0;
-            font-size: var(--font-size-sm);
-        }
-
+        #infoPanel p { margin: 5px 0; font-size: var(--font-size-sm); }
         .game-button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: 'Orbitron', sans-serif;
-            font-size: var(--font-size-sm);
-            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            pointer-events: auto;
+            background-color: #007bff; color: white; border: none; padding: 10px 20px;
+            border-radius: 5px; cursor: pointer; font-family: 'Orbitron', sans-serif;
+            font-size: var(--font-size-sm); box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease; pointer-events: auto;
         }
-        
-        .game-button:hover {
-            background-color: #0056b3;
-            box-shadow: 0 0 15px rgba(0, 123, 255, 0.7);
-        }
-        
-        /* Start Screen & Difficulty Screen Buttons */
+        .game-button:hover { background-color: #0056b3; box-shadow: 0 0 15px rgba(0, 123, 255, 0.7); }
         .large-button {
-            padding: 15px 30px;
-            font-size: var(--font-size-md);
-            background-color: var(--primary-accent);
-            color: #000;
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0, 204, 255, 0.7);
-            cursor: pointer;
+            padding: 15px 30px; font-size: var(--font-size-md); background-color: var(--primary-accent);
+            color: #000; border: none; border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 204, 255, 0.7); cursor: pointer;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
-
-        .large-button:hover {
-            background-color: #00aaff;
-            box-shadow: 0 0 40px rgba(0, 204, 255, 0.9);
-        }
-        
+        .large-button:hover { background-color: #00aaff; box-shadow: 0 0 40px rgba(0, 204, 255, 0.9); }
         #startScreen h1 {
-             font-size: var(--font-size-xl);
-             color: var(--primary-accent);
-             text-shadow: 0 0 20px var(--primary-accent);
-             margin-bottom: 50px;
+             font-size: var(--font-size-xl); color: var(--primary-accent);
+             text-shadow: 0 0 20px var(--primary-accent); margin-bottom: 50px;
         }
-        
-        /* FIX 1: Prevent title and buttons from overlapping */
-        #startScreen .button-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            align-items: center;
+        #startScreen .button-container { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        #difficultyScreen h2, #howToPlayScreen h2, #messageOverlay h2 {
+            font-size: var(--font-size-xl); color: var(--primary-accent);
+            text-shadow: 0 0 10px var(--primary-accent); margin-bottom: 40px;
         }
+        #difficultySelect { display: flex; flex-direction: column; gap: 15px; width: clamp(250px, 80vw, 400px); }
+        #howToPlayScreen ul { list-style: none; padding: 0; font-size: var(--font-size-sm); max-width: 90%; width: 800px; text-align: left; margin-bottom: 40px; }
+        #messageOverlay .button-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
 
-        #difficultyScreen h2 {
-            font-size: var(--font-size-xl);
-            color: var(--primary-accent);
-            text-shadow: 0 0 10px var(--primary-accent);
-            margin-bottom: 40px;
+        #boosterControl {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 10; pointer-events: none;
         }
-
-        #difficultySelect {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: clamp(250px, 80vw, 400px);
+        #boosterButton {
+            width: 100px; height: 100px; border-radius: 50%; background-color: #ff4500;
+            color: white; font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: bold;
+            border: 3px solid #ff8c00; box-shadow: 0 0 20px #ff4500; cursor: pointer;
+            pointer-events: auto; transition: all 0.2s ease; -webkit-user-select: none; user-select: none;
         }
-
-        #difficultySelect button {
-            padding: 15px 30px;
-            font-size: var(--font-size-md);
+        #boosterButton:active { transform: scale(0.95); box-shadow: 0 0 30px #ff8c00; }
+        #boosterButton:disabled { background-color: #555; border-color: #777; box-shadow: none; cursor: not-allowed; }
+        #boosterGaugeContainer {
+            width: 200px; height: 20px; background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--glow-color); border-radius: 10px; padding: 2px;
         }
-        #difficultySelect button:nth-child(1) { background-color: #00ff99; box-shadow: 0 0 20px rgba(0, 255, 153, 0.7); } /* Easy */
-        #difficultySelect button:nth-child(2) { background-color: #ffcc00; box-shadow: 0 0 20px rgba(255, 204, 0, 0.7); } /* Normal */
-        #difficultySelect button:nth-child(3) { background-color: #ff6666; box-shadow: 0 0 20px rgba(255, 102, 102, 0.7); } /* Hard */
-        #difficultySelect button:nth-child(1):hover { background-color: #00e68f; box-shadow: 0 0 30px rgba(0, 255, 153, 0.9); }
-        #difficultySelect button:nth-child(2):hover { background-color: #e6b800; box-shadow: 0 0 30px rgba(255, 204, 0, 0.9); }
-        #difficultySelect button:nth-child(3):hover { background-color: #e65c5c; box-shadow: 0 0 30px rgba(255, 102, 102, 0.9); }
-
-        #howToPlayScreen h2 {
-            font-size: var(--font-size-xl);
+        #boosterGaugeFill {
+            width: 100%; height: 100%; background: linear-gradient(90deg, #ff4500, #ffa500);
+            border-radius: 6px; transition: width 0.1s linear;
         }
-
-        #howToPlayScreen ul {
-            list-style: none;
-            padding: 0;
-            font-size: var(--font-size-sm);
-            max-width: 90%;
-            width: 800px;
-            text-align: left;
-            margin-bottom: 40px;
-        }
-
-        #howToPlayScreen ul li {
-            margin-bottom: 15px;
-            line-height: 1.5;
-            padding-left: 30px;
-            position: relative;
-        }
-
-        #howToPlayScreen ul li::before {
-            content: "•"; color: #00ff00; font-size: 24px; position: absolute; left: 0; top: 0;
-        }
-
-        #messageOverlay h2 { font-size: var(--font-size-xl); margin-bottom: 20px; }
-        #messageOverlay p { font-size: var(--font-size-md); margin-bottom: 30px; }
-        #messageOverlay .button-container { display: flex; gap: 20px; }
-        #messageOverlay #gameOverMessage { color: #ff4444; text-shadow: 0 0 10px #ff4444; }
-        #messageOverlay #levelWinMessage { color: #00ffff; text-shadow: 0 0 10px #00ffff; }
-
     </style>
 </head>
 <body>
-    <div id="uiOverlay" style="visibility: hidden;">
+    <div id="uiOverlay" class="hidden">
         <div id="infoPanel">
-            <h1>Gravity Ship</h1>
-            <p>Level: <span id="level">1</span></p>
-            <p>Fuel: <span id="fuel">5</span></p>
-            <p>Boosts: <span id="boosts">3</span></p> <p>Difficulty: <span id="difficultyText">Easy</span></p>
-            <button id="restartButton" class="game-button" style="margin-top: 15px;">Restart Level</button>
+            <p>Level: <span id="level">1</span> | Fuel: <span id="fuel">5</span></p>
+            <p>Difficulty: <span id="difficultyText">Easy</span></p>
+            <div style="margin-top: 10px; display: flex; gap: 10px;">
+                <button id="restartButton" class="game-button">Restart</button>
+                <button id="homeButton" class="game-button">Home</button>
+            </div>
         </div>
-        <button id="skipLevelButton" class="game-button" style="display: none;">Skip Level</button>
+        <button id="remapButton" class="game-button">New Map</button>
     </div>
 
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas" class="hidden"></canvas>
+    
+    <div id="boosterControl" class="hidden">
+        <div id="boosterGaugeContainer"><div id="boosterGaugeFill"></div></div>
+        <button id="boosterButton">BOOST</button>
+    </div>
 
     <div id="startScreen" class="screen-overlay">
         <h1>Gravity Ship</h1>
@@ -226,7 +134,7 @@
         </div>
     </div>
 
-    <div id="difficultyScreen" class="screen-overlay" style="display: none;">
+    <div id="difficultyScreen" class="screen-overlay hidden">
         <h2>Select Difficulty</h2>
         <div id="difficultySelect">
             <button class="large-button" onclick="setDifficulty('easy')">Easy</button>
@@ -234,451 +142,209 @@
             <button class="large-button" onclick="setDifficulty('hard')">Hard</button>
         </div>
     </div>
-
-    <div id="howToPlayScreen" class="screen-overlay" style="display: none;">
+    
+    <div id="howToPlayScreen" class="screen-overlay hidden">
         <h2>How to Play</h2>
         <ul>
-            <li><strong>Goal</strong>: Launch your spaceship through the portal using the planet's gravity.</li>
-            <li><strong>Launch</strong>: Click and drag your spaceship to set direction and power, then release to launch.</li>
-            <li><strong>Booster</strong>: Press the <strong>SPACEBAR</strong> while flying to get a speed boost! Use it to escape strong gravity or fine-tune your path. You have 3 boosts per level.</li>
-            <li><strong>Gravity</strong>: The planet will pull your spaceship, changing its trajectory.</li>
-            <li><strong>Fuel</strong>: Each launch consumes 1 fuel. Run out of fuel and it's game over.</li>
-            <li><strong>Game Over</strong>: Hitting the planet, flying off-screen, or colliding with an alien means game over!</li>
-            <li><strong>Aliens (Normal/Hard)</strong>: Avoid collision with alien ships in higher difficulties!</li>
+            <li><strong>Launch</strong>: Click/drag your ship, then release.</li>
+            <li><strong>Booster</strong>: Press & hold <strong>BOOST</strong> or <strong>SPACEBAR</strong> to accelerate.</li>
+            <li><strong>New Map</strong>: If a level is too hard, use the 'New Map' button once to get a new layout.</li>
+            <li><strong>Gravity</strong>: Use planetary gravity to bend your trajectory to the portal.</li>
         </ul>
         <button onclick="hideHowToPlay()" class="large-button">Got it!</button>
     </div>
 
-    <div id="messageOverlay" class="screen-overlay" style="display: none;">
-        <h2 id="messageTitle"></h2>
-        <p id="messageText"></p>
+    <div id="messageOverlay" class="screen-overlay hidden">
+        <h2 id="messageTitle"></h2><p id="messageText"></p>
         <div class="button-container">
             <button id="restartLevelButton" class="large-button">Restart Level</button>
-            <button id="nextLevelButton" class="large-button" style="display: none;">Next Level</button>
+            <button id="nextLevelButton" class="large-button hidden">Next Level</button>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        // --- DOM Elements ---
+        const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d');
+        const uiOverlay = document.getElementById('uiOverlay'); const startScreen = document.getElementById('startScreen');
+        const difficultyScreen = document.getElementById('difficultyScreen'); const howToPlayScreen = document.getElementById('howToPlayScreen');
+        const messageOverlay = document.getElementById('messageOverlay'); const boosterControl = document.getElementById('boosterControl');
+        const boosterButton = document.getElementById('boosterButton'); const boosterGaugeFill = document.getElementById('boosterGaugeFill');
+        const startButton = document.getElementById('startButton'); const howToPlayButton = document.getElementById('howToPlayButton');
+        const homeButton = document.getElementById('homeButton'); const restartButton = document.getElementById('restartButton');
+        const remapButton = document.getElementById('remapButton');
+        const restartLevelButton = document.getElementById('restartLevelButton'); const nextLevelButton = document.getElementById('nextLevelButton');
+        const levelUI = document.getElementById('level'); const fuelUI = document.getElementById('fuel');
+        const difficultyTextUI = document.getElementById('difficultyText'); const messageTitle = document.getElementById('messageTitle');
+        const messageText = document.getElementById('messageText');
         
-        // FIX 4: Responsive Canvas Size
-        function resizeCanvas() {
-            const aspectRatio = 16 / 9;
-            const screenWidth = window.innerWidth;
-            const screenHeight = window.innerHeight;
-            
-            if (screenWidth / screenHeight > aspectRatio) {
-                canvas.height = screenHeight * 0.9;
-                canvas.width = canvas.height * aspectRatio;
-            } else {
-                canvas.width = screenWidth * 0.9;
-                canvas.height = canvas.width / aspectRatio;
-            }
-
-            if (gameState !== 'startScreen' && gameState !== 'difficultySelect' && gameState !== 'howToPlay') {
-                setupLevel(false); // Re-generate level on resize for simplicity
-            }
-        }
-        
-        // 게임 상태
-        let gameState = 'startScreen';
-        let currentDifficulty = 'easy';
-        let level = 1;
-        let fuel = 5;
-        let boostsLeft = 3; // FEATURE 5: Booster count
-        let isBoosting = false; // FEATURE 5: Booster state
-        let lastSkippedLevel = -1;
-        
-        // FIX 3: Store level configuration
+        // --- Game State & Config ---
+        let gameState = 'startScreen'; let currentDifficulty = 'easy'; let level = 1; let fuel = 5;
+        let boosterFuel = 100; let isBoosting = false; let canRemap = true; // FEATURE 2
         let currentLevelConfig = {};
 
-        // UI 요소
-        const uiOverlay = document.getElementById('uiOverlay');
-        const levelUI = document.getElementById('level');
-        const fuelUI = document.getElementById('fuel');
-        const boostsUI = document.getElementById('boosts'); // FEATURE 5
-        const difficultyTextUI = document.getElementById('difficultyText');
-        const restartButton = document.getElementById('restartButton');
-        const skipLevelButton = document.getElementById('skipLevelButton');
-        const startScreen = document.getElementById('startScreen');
-        const startButton = document.getElementById('startButton');
-        const howToPlayButton = document.getElementById('howToPlayButton');
-        const difficultyScreen = document.getElementById('difficultyScreen');
-        const howToPlayScreen = document.getElementById('howToPlayScreen');
-        const messageOverlay = document.getElementById('messageOverlay');
-        const messageTitle = document.getElementById('messageTitle');
-        const messageText = document.getElementById('messageText');
-        const restartLevelButton = document.getElementById('restartLevelButton');
-        const nextLevelButton = document.getElementById('nextLevelButton');
-        
-        // FIX 2: Spaceship Image
-        const spaceshipImage = new Image();
-        spaceshipImage.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath d='M30 0 L55 55 L30 45 L5 55 Z' fill='%2300ffff'/%3E%3C/svg%3E";
-        let imageLoaded = false;
-        spaceshipImage.onload = () => {
-            imageLoaded = true;
-        };
-
-        // 파티클
-        let particles = [];
-        class Particle {
-            constructor(x, y, radius, color, velocity, life, isBoost = false) {
-                this.x = x; this.y = y;
-                this.radius = radius * (isBoost ? 1.5 : 1);
-                this.color = isBoost ? '#FFA500' : color;
-                this.velocity = velocity;
-                this.alpha = 1;
-                this.life = life || 100;
-                this.decay = 1 / this.life;
-            }
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.alpha;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-                ctx.fillStyle = this.color;
-                if(isBoosting) {
-                    ctx.shadowColor = '#FF4500';
-                    ctx.shadowBlur = 10;
-                }
-                ctx.fill();
-                ctx.restore();
-            }
-            update() {
-                this.x += this.velocity.x;
-                this.y += this.velocity.y;
-                this.alpha -= this.decay;
-                this.draw();
-            }
-        }
-        
-        // 게임 객체
+        // --- Game Objects ---
         let spaceship = { x: 0, y: 0, radius: 15, vx: 0, vy: 0, color: '#00ffff' };
         let portal = { x: 0, y: 0, radius: 25, angle: 0, color: '#ff00ff' };
-        let planet = { x: 0, y: 0, radius: 50, mass: 2000, color: '#ffa500' };
-        let aliens = [];
+        let planets = []; let aliens = []; let particles = []; let mouse = { x: 0, y: 0, down: false };
 
-        class Alien {
-            constructor(config) {
-                Object.assign(this, config);
-                this.initialAngle = config.orbitAngle;
-            }
-            draw() { /* Original drawing code... */ }
-            update() {
-                this.orbitAngle += this.orbitSpeed;
-                this.x = this.centerX + Math.cos(this.orbitAngle) * this.orbitRadius;
-                this.y = this.centerY + Math.sin(this.orbitAngle) * this.orbitRadius;
-            }
-            reset() { this.orbitAngle = this.initialAngle; } // For level reset
-        }
-        Alien.prototype.draw = function() {
-            ctx.save();
-            ctx.shadowColor = this.color; ctx.shadowBlur = 10;
-            ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(this.x - this.radius * 0.3, this.y - this.radius * 0.3, this.radius * 0.2, 0, Math.PI * 2); ctx.arc(this.x + this.radius * 0.3, this.y - this.radius * 0.3, this.radius * 0.2, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(this.x - this.radius * 0.3, this.y - this.radius * 0.3, this.radius * 0.1, 0, Math.PI * 2); ctx.arc(this.x + this.radius * 0.3, this.y - this.radius * 0.3, this.radius * 0.1, 0, Math.PI * 2); ctx.fill();
-            ctx.restore();
-        };
-
-
-        // 마우스
-        let mouse = { x: 0, y: 0, down: false };
-
-        // FIX 3: Modified Level Setup
+        const spaceshipImage = new Image();
+        spaceshipImage.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath d='M30 0 L55 55 L30 45 L5 55 Z' fill='%2300ffff'/%3E%3C/svg%3E";
+        
+        class Particle { /* ... (no changes) ... */ }
+        Particle = class { constructor(x, y, r, c, v, l) { this.x=x; this.y=y; this.radius=r; this.color=c; this.velocity=v; this.alpha=1; this.life=l||100; this.decay=1/this.life; } draw() { ctx.save(); ctx.globalAlpha=this.alpha; ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2,false); ctx.fillStyle=this.color; ctx.fill(); ctx.restore(); } update() { this.x+=this.velocity.x; this.y+=this.velocity.y; this.alpha-=this.decay; this.draw(); }};
+        class Alien { /* ... (no changes) ... */ }
+        Alien = class { constructor(config) { Object.assign(this, config); this.initialAngle = config.orbitAngle; } draw() { ctx.save(); ctx.shadowColor=this.color; ctx.shadowBlur=10; ctx.fillStyle=this.color; ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill(); ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(this.x-this.radius*0.3,this.y-this.radius*0.3,this.radius*0.2,0,Math.PI*2); ctx.arc(this.x+this.radius*0.3,this.y-this.radius*0.3,this.radius*0.2,0,Math.PI*2); ctx.fill(); ctx.fillStyle='black'; ctx.beginPath(); ctx.arc(this.x-this.radius*0.3,this.y-this.radius*0.3,this.radius*0.1,0,Math.PI*2); ctx.arc(this.x+this.radius*0.3,this.y-this.radius*0.3,this.radius*0.1,0,Math.PI*2); ctx.fill(); ctx.restore(); } update() { this.orbitAngle+=this.orbitSpeed; this.x=this.centerX+Math.cos(this.orbitAngle)*this.orbitRadius; this.y=this.centerY+Math.sin(this.orbitAngle)*this.orbitRadius; } reset() { this.orbitAngle = this.initialAngle; this.update(); }};
+        
         function setupLevel(isRestart = false) {
-            gameState = 'ready';
+            gameState = 'ready'; fuel = 5; boosterFuel = 100;
+            if (!isRestart) { canRemap = true; /* ... new level generation ... */ }
             
-            if (!isRestart) { // Generate a new level configuration
-                if (level === 1) fuel = 5;
-                boostsLeft = 3;
-
-                let isSolvable = false;
-                let newConfig = {};
-                while (!isSolvable) {
-                    const marginX = canvas.width * 0.1;
-                    const marginY = canvas.height * 0.1;
-                    
-                    newConfig.spaceship = {
-                        x: Math.random() * (canvas.width / 4) + marginX,
-                        y: Math.random() * (canvas.height - 2 * marginY) + marginY,
-                    };
-                    newConfig.portal = {
-                        x: canvas.width - (Math.random() * (canvas.width / 4) + marginX),
-                        y: Math.random() * (canvas.height - 2 * marginY) + marginY,
-                    };
-                    newConfig.planet = {
-                        x: canvas.width / 2 + (Math.random() - 0.5) * (canvas.width / 4),
-                        y: canvas.height / 2 + (Math.random() - 0.5) * (canvas.height / 4),
-                        radius: Math.random() * 50 + 40
-                    };
-                    newConfig.planet.mass = newConfig.planet.radius * 50;
-
-                    const distPlanetShip = Math.hypot(newConfig.planet.x - newConfig.spaceship.x, newConfig.planet.y - newConfig.spaceship.y);
-                    const distPlanetPortal = Math.hypot(newConfig.planet.x - newConfig.portal.x, newConfig.planet.y - newConfig.portal.y);
-                    
-                    if (distPlanetShip > newConfig.planet.radius + 100 && distPlanetPortal > newConfig.planet.radius + 100) {
-                        isSolvable = true;
+            if (!isRestart) {
+                const newConfig = {};
+                const marginX = canvas.width * 0.1, marginY = canvas.height * 0.1;
+                newConfig.spaceship = { x: Math.random()*(canvas.width/4)+marginX, y: Math.random()*(canvas.height-2*marginY)+marginY };
+                newConfig.portal = { x: canvas.width-(Math.random()*(canvas.width/4)+marginX), y: Math.random()*(canvas.height-2*marginY)+marginY };
+                newConfig.planets = [];
+                let numPlanets = currentDifficulty === 'hard' ? 3 : (currentDifficulty === 'normal' ? 2 : 1);
+                for (let i = 0; i < numPlanets; i++) {
+                    let p, validPosition = false;
+                    while (!validPosition) {
+                        p = { x: canvas.width/2 + (Math.random()-0.5)*(canvas.width/2.5), y: canvas.height/2 + (Math.random()-0.5)*(canvas.height/2.5), radius: Math.random() * 30 + 30 };
+                        p.mass = p.radius * 50;
+                        const distToShip = Math.hypot(p.x - newConfig.spaceship.x, p.y - newConfig.spaceship.y);
+                        const distToPortal = Math.hypot(p.x - newConfig.portal.x, p.y - newConfig.portal.y);
+                        let distToOthers = !newConfig.planets.some(other => Math.hypot(p.x-other.x, p.y-other.y) < p.radius+other.radius+50);
+                        if (distToShip > p.radius+80 && distToPortal > p.radius+80 && distToOthers) validPosition = true;
                     }
+                    newConfig.planets.push(p);
                 }
-                
                 newConfig.aliens = [];
-                let numAliens = 0;
-                if (currentDifficulty === 'normal') numAliens = 2;
-                if (currentDifficulty === 'hard') numAliens = 4;
-                for (let i = 0; i < numAliens; i++) {
-                    newConfig.aliens.push({
-                        centerX: newConfig.planet.x, centerY: newConfig.planet.y, radius: 12, orbitRadius: Math.random() * 100 + newConfig.planet.radius + 20, orbitSpeed: (Math.random() * 0.02 + 0.005) * (Math.random() < 0.5 ? 1 : -1), orbitAngle: Math.random() * Math.PI * 2, color: '#8800ff'
-                    });
+                if (newConfig.planets.length > 0) {
+                    const mainPlanet = newConfig.planets[0];
+                    let numAliens = currentDifficulty === 'hard' ? 2 : (currentDifficulty === 'normal' ? 1 : 0);
+                    for (let i = 0; i < numAliens; i++) { newConfig.aliens.push({ centerX: mainPlanet.x, centerY: mainPlanet.y, radius: 12, orbitRadius: Math.random() * 80 + mainPlanet.radius + 30, orbitSpeed: (Math.random() * 0.02 + 0.005) * (Math.random() < 0.5 ? 1 : -1), orbitAngle: Math.random() * Math.PI * 2, color: '#8800ff' }); }
                 }
-                currentLevelConfig = newConfig; // Store the new configuration
+                currentLevelConfig = newConfig;
             }
             
-            // Apply the stored configuration
-            spaceship.x = currentLevelConfig.spaceship.x;
-            spaceship.y = currentLevelConfig.spaceship.y;
+            spaceship.x = currentLevelConfig.spaceship.x; spaceship.y = currentLevelConfig.spaceship.y;
             spaceship.vx = 0; spaceship.vy = 0;
-
-            portal.x = currentLevelConfig.portal.x;
-            portal.y = currentLevelConfig.portal.y;
-
-            planet.x = currentLevelConfig.planet.x;
-            planet.y = currentLevelConfig.planet.y;
-            planet.radius = currentLevelConfig.planet.radius;
-            planet.mass = currentLevelConfig.planet.mass;
-            
+            portal.x = currentLevelConfig.portal.x; portal.y = currentLevelConfig.portal.y;
+            planets = currentLevelConfig.planets.map(p => ({...p}));
             aliens = currentLevelConfig.aliens.map(conf => new Alien(conf));
-            aliens.forEach(alien => alien.reset()); // Reset alien positions
-            
+            aliens.forEach(alien => alien.reset());
             updateUI();
             hideMessageOverlay();
-            skipLevelButton.style.display = (level - lastSkippedLevel >= 2 && level > 1) ? 'block' : 'none';
         }
 
-        function updateUI() {
-            levelUI.textContent = level;
-            fuelUI.textContent = fuel;
-            boostsUI.textContent = boostsLeft; // FEATURE 5
-            difficultyTextUI.textContent = currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1);
-        }
+        function drawPlanet(p) { /* ... no changes ... */ }
+        function drawPortal() { /* ... no changes ... */ }
+        function drawSpaceship() { /* ... no changes ... */ }
+        function drawTrajectory() { /* ... no changes ... */ }
+        drawPlanet = function(p) { ctx.save(); const g=ctx.createRadialGradient(p.x,p.y,p.radius*0.5,p.x,p.y,p.radius); g.addColorStop(0,'#ffa500'); g.addColorStop(1,'#000'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.x,p.y,p.radius,0,Math.PI*2); ctx.fill(); ctx.shadowColor='#ffa500'; ctx.shadowBlur=30; ctx.fill(); ctx.restore(); };
+        drawPortal = function() { ctx.save(); ctx.translate(portal.x, portal.y); ctx.rotate(portal.angle); for(let i=0;i<5;i++){ ctx.beginPath(); ctx.strokeStyle=`rgba(255,0,255,${1-(i/5)})`; ctx.lineWidth=3; ctx.arc(0,0,portal.radius-(i*4),(i*Math.PI/2.5),(i*Math.PI/2.5)+Math.PI*1.5); ctx.stroke(); } ctx.restore(); portal.angle+=0.02; };
+        drawSpaceship = function() { ctx.save(); ctx.translate(spaceship.x, spaceship.y); let angle=Math.atan2(spaceship.vy,spaceship.vx)+Math.PI/2; if(gameState==='dragging'){angle=Math.atan2(mouse.y-spaceship.y,mouse.x-spaceship.x)-Math.PI/2;} ctx.rotate(angle); const s=spaceship.radius*2; ctx.shadowColor=spaceship.color; ctx.shadowBlur=15; ctx.drawImage(spaceshipImage,-s/2,-s/2,s,s); ctx.restore(); };
+        drawTrajectory = function() { let sim={x:spaceship.x,y:spaceship.y,vx:-(mouse.x-spaceship.x)*0.05,vy:-(mouse.y-spaceship.y)*0.05}; ctx.save(); ctx.setLineDash([2,5]); ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(sim.x,sim.y); for(let i=0;i<200;i++){ let hit=false; for(const p of planets){ if(Math.hypot(sim.x-p.x,sim.y-p.y)<p.radius){hit=true;break;} const d=Math.hypot(sim.x-p.x,sim.y-p.y),g=p.mass/(d*d),a=Math.atan2(p.y-sim.y,p.x-sim.x); sim.vx+=g*Math.cos(a); sim.vy+=g*Math.sin(a);} if(hit)break; sim.x+=sim.vx; sim.y+=sim.vy; ctx.lineTo(sim.x,sim.y);} ctx.stroke(); ctx.restore(); };
 
-        function draw() {
-            ctx.fillStyle = '#000010';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            particles.forEach((p, i) => p.alpha <= 0 ? particles.splice(i, 1) : p.update());
-            
-            drawPlanet();
-            drawPortal();
-            aliens.forEach(alien => alien.draw());
-            drawSpaceship();
-            
-            if (gameState === 'dragging') drawTrajectory();
-        }
-        
-        function drawPlanet() { /* Original drawing code... */ }
-        function drawPortal() { /* Original drawing code... */ }
-        drawPlanet = function() { ctx.save(); const gradient = ctx.createRadialGradient(planet.x, planet.y, planet.radius * 0.5, planet.x, planet.y, planet.radius); gradient.addColorStop(0, planet.color); gradient.addColorStop(1, '#000'); ctx.fillStyle = gradient; ctx.beginPath(); ctx.arc(planet.x, planet.y, planet.radius, 0, Math.PI * 2); ctx.fill(); ctx.shadowColor = planet.color; ctx.shadowBlur = 30; ctx.fill(); ctx.restore(); };
-        drawPortal = function() { ctx.save(); ctx.translate(portal.x, portal.y); ctx.rotate(portal.angle); for (let i = 0; i < 5; i++) { ctx.beginPath(); const radius = portal.radius - (i * 4); const alpha = 1 - (i / 5); ctx.strokeStyle = `rgba(255, 0, 255, ${alpha})`; ctx.lineWidth = 3; ctx.arc(0, 0, radius, (i * Math.PI / 2.5), (i * Math.PI / 2.5) + Math.PI * 1.5); ctx.stroke(); } ctx.restore(); portal.angle += 0.02; };
-
-
-        // FIX 2: Draw Spaceship Image
-        function drawSpaceship() {
-            if (!imageLoaded) return;
-            ctx.save();
-            ctx.translate(spaceship.x, spaceship.y);
-
-            let angle = Math.atan2(spaceship.vy, spaceship.vx) + Math.PI / 2;
-            if (gameState === 'dragging') {
-                angle = Math.atan2(mouse.y - spaceship.y, mouse.x - spaceship.x) - Math.PI / 2;
+        function updateSpaceship() {
+            if (isBoosting && boosterFuel > 0) {
+                boosterFuel -= 0.5; if (boosterFuel < 0) boosterFuel = 0;
+                const BOOST_FORCE = 0.08, angle = Math.atan2(spaceship.vy, spaceship.vx);
+                if (spaceship.vx !== 0 || spaceship.vy !== 0) { spaceship.vx += Math.cos(angle) * BOOST_FORCE; spaceship.vy += Math.sin(angle) * BOOST_FORCE; }
+                updateUI();
             }
-            ctx.rotate(angle);
+            let totalG={x:0,y:0}, collision=false; for(const p of planets){ const dx=p.x-spaceship.x, dy=p.y-spaceship.y, d=Math.hypot(dx,dy); if(d<spaceship.radius+p.radius){collision=true;break;} const g=p.mass/(d*d), a=Math.atan2(dy,dx); totalG.x+=g*Math.cos(a); totalG.y+=g*Math.sin(a);}
+            if(collision){ gameState='gameover'; showMessageOverlay('GAME OVER', 'Crashed!', false); return; }
+            spaceship.vx += totalG.x; spaceship.vy += totalG.y; spaceship.x += spaceship.vx; spaceship.y += spaceship.vy;
 
-            const imgWidth = spaceship.radius * 2;
-            const imgHeight = spaceship.radius * 2;
-
-            ctx.shadowColor = spaceship.color;
-            ctx.shadowBlur = 15;
-            
-            ctx.drawImage(spaceshipImage, -imgWidth / 2, -imgHeight / 2, imgWidth, imgHeight);
-
-            ctx.restore();
-        }
-
-        function drawTrajectory() { /* Original drawing code... */ }
-        drawTrajectory = function() { const startX = spaceship.x; const startY = spaceship.y; const dx = mouse.x - startX; const dy = mouse.y - startY; let simShip = { x: startX, y: startY, vx: -dx * 0.05, vy: -dy * 0.05 }; ctx.save(); ctx.setLineDash([2, 5]); ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(simShip.x, simShip.y); for (let i = 0; i < 200; i++) { const dPlanet = Math.hypot(simShip.x - planet.x, simShip.y - planet.y); if (dPlanet < planet.radius) break; const gravity = planet.mass / (dPlanet * dPlanet); const angle = Math.atan2(planet.y - simShip.y, planet.x - simShip.x); simShip.vx += gravity * Math.cos(angle); simShip.vy += gravity * Math.sin(angle); simShip.x += simShip.vx; simShip.y += simShip.vy; ctx.lineTo(simShip.x, simShip.y); } ctx.stroke(); ctx.restore(); };
-
-        function showMessageOverlay(title, text, isWin) { /* Original code... */ }
-        function hideMessageOverlay() { /* Original code... */ }
-        showMessageOverlay = function(title, text, isWin) { messageOverlay.style.display = 'flex'; messageTitle.textContent = title; messageText.textContent = text; messageTitle.id = isWin ? 'levelWinMessage' : 'gameOverMessage'; nextLevelButton.style.display = isWin ? 'block' : 'none'; restartLevelButton.style.display = 'block'; };
-        hideMessageOverlay = function() { messageOverlay.style.display = 'none'; };
-
-
-        function update() {
-            if (gameState !== 'launched') return;
-            
-            const dx = planet.x - spaceship.x;
-            const dy = planet.y - spaceship.y;
-            const distance = Math.hypot(dx, dy);
-
-            if (distance > spaceship.radius + planet.radius) {
-                const gravityForce = planet.mass / (distance * distance);
-                const angle = Math.atan2(dy, dx);
-                spaceship.vx += gravityForce * Math.cos(angle);
-                spaceship.vy += gravityForce * Math.sin(angle);
-                spaceship.x += spaceship.vx;
-                spaceship.y += spaceship.vy;
-
-                // Particle Trail
+            // --- FEATURE 1: Particle Effects ---
+            const speed = Math.hypot(spaceship.vx, spaceship.vy);
+            if (speed > 0.1) { // Only create particles if moving
                 const angleRad = Math.atan2(-spaceship.vy, -spaceship.vx);
-                const exhaustX = spaceship.x + Math.cos(angleRad) * spaceship.radius;
-                const exhaustY = spaceship.y + Math.sin(angleRad) * spaceship.radius;
-                const particleCount = isBoosting ? 5 : 1; // FEATURE 5: More particles for boost
-                for(let i = 0; i < particleCount; i++) {
-                    const spreadAngle = Math.random() * Math.PI / 4 - Math.PI / 8;
-                    const particleAngle = angleRad + spreadAngle;
-                    particles.push(new Particle(exhaustX, exhaustY, Math.random() * 2 + 1, '#ffaa00', { x: Math.cos(particleAngle) * (Math.random() * 2 + 1), y: Math.sin(particleAngle) * (Math.random() * 2 + 1) }, 50, isBoosting));
-                }
-            } else {
-                gameState = 'gameover';
-                showMessageOverlay('GAME OVER', `You crashed into the planet at Level ${level}.`, false);
-            }
-
-            if (Math.hypot(spaceship.x - portal.x, spaceship.y - portal.y) < portal.radius) {
-                gameState = 'win';
-                showMessageOverlay('LEVEL CLEAR!', `Proceed to Level ${level + 1}.`, true);
-            }
-
-            if (spaceship.x < -50 || spaceship.x > canvas.width + 50 || spaceship.y < -50 || spaceship.y > canvas.height + 50) {
-                gameState = 'gameover';
-                showMessageOverlay('GAME OVER', `You flew off into space at Level ${level}.`, false);
-            }
-
-            for (const alien of aliens) {
-                if (Math.hypot(spaceship.x - alien.x, spaceship.y - alien.y) < spaceship.radius + alien.radius) {
-                    gameState = 'gameover';
-                    showMessageOverlay('GAME OVER', `You collided with an alien at Level ${level}.`, false);
-                    break;
+                const exhaustPos = { x: spaceship.x + Math.cos(angleRad) * spaceship.radius, y: spaceship.y + Math.sin(angleRad) * spaceship.radius };
+                
+                if (isBoosting && boosterFuel > 0) {
+                    // Intense booster particles
+                    for (let i = 0; i < 5; i++) {
+                        const spread = Math.random() * 0.6 - 0.3;
+                        const pAngle = angleRad + spread;
+                        const pSpeed = Math.random() * 3 + 2;
+                        particles.push(new Particle(exhaustPos.x, exhaustPos.y, Math.random() * 3 + 2, '#ff6a00', { x: Math.cos(pAngle) * pSpeed, y: Math.sin(pAngle) * pSpeed }, 40));
+                    }
+                } else {
+                    // Normal flight particles
+                    const pAngle = angleRad + Math.random() * 0.4 - 0.2;
+                    particles.push(new Particle(exhaustPos.x, exhaustPos.y, Math.random() * 2 + 1, '#ffee00', { x: Math.cos(pAngle) * 2, y: Math.sin(pAngle) * 2 }, 60));
                 }
             }
-            aliens.forEach(alien => alien.update());
+            
+            if(Math.hypot(spaceship.x-portal.x,spaceship.y-portal.y)<portal.radius){ gameState='win'; showMessageOverlay('LEVEL CLEAR!',`Proceed to Level ${level+1}.`, true);}
+            if(spaceship.x<-50||spaceship.x>canvas.width+50||spaceship.y<-50||spaceship.y>canvas.height+50){ gameState='gameover'; showMessageOverlay('GAME OVER','Lost in space!',false);}
+            for(const a of aliens){if(Math.hypot(spaceship.x-a.x,spaceship.y-a.y)<spaceship.radius+a.radius){gameState='gameover';showMessageOverlay('GAME OVER','Alien collision!',false);break;}}
         }
-        
+
+        function updateEnvironment() { aliens.forEach(alien => alien.update()); }
         function gameLoop() {
-            if (gameState === 'launched') {
-                update();
-            }
-            draw();
+            if (['ready','dragging','launched'].includes(gameState)) updateEnvironment();
+            if (gameState === 'launched') updateSpaceship();
+            ctx.fillStyle='#000010'; ctx.fillRect(0,0,canvas.width,canvas.height);
+            particles.forEach((p,i)=>p.alpha<=0?particles.splice(i,1):p.update());
+            planets.forEach(drawPlanet); drawPortal(); aliens.forEach(a=>a.draw());
+            drawSpaceship(); if(gameState==='dragging')drawTrajectory();
             requestAnimationFrame(gameLoop);
         }
 
-        // Event Listeners
-        function getMousePos(e) {
-            const rect = canvas.getBoundingClientRect();
-            return {
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
-            };
+        function updateUI() {
+            levelUI.textContent = level; fuelUI.textContent = fuel;
+            difficultyTextUI.textContent = currentDifficulty.charAt(0).toUpperCase()+currentDifficulty.slice(1);
+            boosterGaugeFill.style.width = boosterFuel + '%';
+            boosterButton.disabled = boosterFuel <= 0;
+            remapButton.classList.toggle('hidden', !canRemap || level === 1);
         }
-
-        canvas.addEventListener('mousedown', (e) => {
-            if (gameState !== 'ready') return;
-            const pos = getMousePos(e);
-            if (Math.hypot(pos.x - spaceship.x, pos.y - spaceship.y) < spaceship.radius * 2) {
-                mouse.down = true;
-                gameState = 'dragging';
-                mouse.x = pos.x;
-                mouse.y = pos.y;
-            }
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (gameState !== 'dragging') return;
-            const pos = getMousePos(e);
-            mouse.x = pos.x;
-            mouse.y = pos.y;
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            if (gameState !== 'dragging') return;
-            mouse.down = false;
-            gameState = 'launched';
-            fuel--;
-            updateUI();
-            
-            const dx = mouse.x - spaceship.x;
-            const dy = mouse.y - spaceship.y;
-            spaceship.vx = -dx * 0.05;
-            spaceship.vy = -dy * 0.05;
-
-            if (fuel <= 0) {
-                setTimeout(() => {
-                    if (gameState !== 'win' && gameState !== 'gameover') {
-                        gameState = 'gameover';
-                        showMessageOverlay('GAME OVER', `You ran out of fuel at Level ${level}.`, false);
-                    }
-                }, 5000); 
-            }
-        });
+        function showMessageOverlay(title, text, isWin) { messageOverlay.classList.remove('hidden'); messageTitle.textContent=title; messageText.textContent=text; messageTitle.id=isWin?'levelWinMessage':'gameOverMessage'; nextLevelButton.classList.toggle('hidden',!isWin); }
+        function hideMessageOverlay() { messageOverlay.classList.add('hidden'); }
+        function resizeCanvas() { const a=16/9,w=window.innerWidth,h=window.innerHeight; if(w/h>a){canvas.height=h*0.9;canvas.width=canvas.height*a;}else{canvas.width=w*0.9;canvas.height=canvas.width/a;} }
         
-        // FEATURE 5: Booster Logic
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && gameState === 'launched' && boostsLeft > 0 && !isBoosting) {
-                e.preventDefault();
-                isBoosting = true;
-                boostsLeft--;
-                updateUI();
-                
-                const BOOST_FACTOR = 1.8;
-                spaceship.vx *= BOOST_FACTOR;
-                spaceship.vy *= BOOST_FACTOR;
-
-                setTimeout(() => { isBoosting = false; }, 200); // Booster effect duration
-            }
-        });
-
-        window.addEventListener('resize', resizeCanvas);
-
-        // UI Button Handlers
-        startButton.addEventListener('click', () => {
-            startScreen.style.display = 'none';
-            difficultyScreen.style.display = 'flex';
-        });
-        howToPlayButton.addEventListener('click', () => {
-            startScreen.style.display = 'none';
-            howToPlayScreen.style.display = 'flex';
-        });
-        function hideHowToPlay() {
-            howToPlayScreen.style.display = 'none';
-            startScreen.style.display = 'flex';
-        }
         function setDifficulty(difficulty) {
-            currentDifficulty = difficulty;
-            difficultyScreen.style.display = 'none';
-            uiOverlay.style.visibility = 'visible';
-            level = 1;
-            fuel = 5;
+            currentDifficulty = difficulty; level = 1;
+            difficultyScreen.classList.add('hidden');
+            uiOverlay.classList.remove('hidden'); canvas.classList.remove('hidden');
+            boosterControl.classList.remove('hidden');
             setupLevel();
         }
+        function goToHome() {
+            gameState = 'startScreen';
+            uiOverlay.classList.add('hidden'); canvas.classList.add('hidden');
+            boosterControl.classList.add('hidden'); messageOverlay.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        }
+
+        // --- Event Listeners ---
+        startButton.addEventListener('click', () => { startScreen.classList.add('hidden'); difficultyScreen.classList.remove('hidden'); });
+        howToPlayButton.addEventListener('click', () => { startScreen.classList.add('hidden'); howToPlayScreen.classList.remove('hidden'); });
+        function hideHowToPlay() { howToPlayScreen.classList.add('hidden'); startScreen.classList.remove('hidden'); }
+        
+        homeButton.addEventListener('click', goToHome);
         restartButton.addEventListener('click', () => setupLevel(true));
-        skipLevelButton.addEventListener('click', () => {
-            if (level - lastSkippedLevel >= 2) {
-                lastSkippedLevel = level;
-                level++;
-                fuel = 5; // Reset fuel on skip
-                setupLevel();
-            } else {
-                alert("You can only skip once every two levels!");
-            }
-        });
         restartLevelButton.addEventListener('click', () => setupLevel(true));
-        nextLevelButton.addEventListener('click', () => {
-            level++;
-            fuel = 5;
-            setupLevel();
+        nextLevelButton.addEventListener('click', () => { level++; setupLevel(); });
+        remapButton.addEventListener('click', () => {
+            if (canRemap) { canRemap = false; setupLevel(false); }
         });
 
-        // Game Initialization
+        canvas.addEventListener('mousedown', e=>{if(gameState!=='ready')return; const rect=canvas.getBoundingClientRect(),pos={x:e.clientX-rect.left,y:e.clientY-rect.top};if(Math.hypot(pos.x-spaceship.x,pos.y-spaceship.y)<spaceship.radius*2){mouse.down=true;gameState='dragging';mouse.x=pos.x;mouse.y=pos.y;}});
+        canvas.addEventListener('mousemove', e=>{if(gameState!=='dragging')return; const rect=canvas.getBoundingClientRect(),pos={x:e.clientX-rect.left,y:e.clientY-rect.top};mouse.x=pos.x;mouse.y=pos.y;});
+        canvas.addEventListener('mouseup', ()=>{if(gameState!=='dragging')return;mouse.down=false;gameState='launched';fuel--;updateUI();spaceship.vx=-(mouse.x-spaceship.x)*0.05;spaceship.vy=-(mouse.y-spaceship.y)*0.05;if(fuel<=0){setTimeout(()=>{if(gameState!=='win'&&gameState!=='gameover'){gameState='gameover';showMessageOverlay('GAME OVER','Ran out of fuel!',false);}},5000);}});
+
+        const startBoost = (e) => { e.preventDefault(); if (gameState === 'launched' && boosterFuel > 0) isBoosting = true; };
+        const endBoost = () => { isBoosting = false; };
+        boosterButton.addEventListener('mousedown', startBoost); boosterButton.addEventListener('mouseup', endBoost);
+        boosterButton.addEventListener('mouseleave', endBoost); boosterButton.addEventListener('touchstart', startBoost, { passive: false });
+        boosterButton.addEventListener('touchend', endBoost);
+        window.addEventListener('keydown', e=>{if(e.code==='Space')startBoost(e);});
+        window.addEventListener('keyup', e=>{if(e.code==='Space')endBoost();});
+
+        window.addEventListener('resize', ()=>{ resizeCanvas(); if(gameState!=='startScreen') setupLevel(); });
         resizeCanvas();
         gameLoop();
     </script>
