@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravity Spaceship</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000010;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        canvas {
+            background-color: #000010;
+            cursor: crosshair;
+        }
+        #uiOverlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none; /* Allows clicks to pass through to canvas if no button is present */
+        }
+        #infoPanel {
+            padding: 15px;
+            background: rgba(0, 25, 50, 0.7);
+            border-radius: 10px;
+            border: 1px solid #00aaff;
+            box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
+            pointer-events: auto; /* Re-enable pointer events for the panel */
+        }
+        #infoPanel h1 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            color: #00ffff;
+            text-shadow: 0 0 5px #00ffff;
+        }
+        #infoPanel p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        .game-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            margin-left: 10px;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            pointer-events: auto;
+        }
+        .game-button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.7);
+        }
+        #topRightButtons {
+            display: flex;
+            flex-direction: row;
+            pointer-events: auto;
+        }
+        #startButton, #difficultySelect, #howToPlayButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            font-size: 24px;
+            background-color: #00ccff;
+            color: #000;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 204, 255, 0.7);
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            z-index: 100;
+        }
+        #startButton:hover, #difficultySelect button:hover, #howToPlayButton:hover {
+            background-color: #00aaff;
+            box-shadow: 0 0 40px rgba(0, 204, 255, 0.9);
+        }
+        #difficultySelect {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 30px;
+            width: 300px;
+        }
+        #difficultySelect button {
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: #00ccff;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 204, 255, 0.7);
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        #difficultySelect button:nth-child(1) { background-color: #00ff99; box-shadow: 0 0 20px rgba(0, 255, 153, 0.7); } /* Easy */
+        #difficultySelect button:nth-child(2) { background-color: #ffcc00; box-shadow: 0 0 20px rgba(255, 204, 0, 0.7); } /* Normal */
+        #difficultySelect button:nth-child(3) { background-color: #ff6666; box-shadow: 0 0 20px rgba(255, 102, 102, 0.7); } /* Hard */
+        #difficultySelect button:nth-child(1):hover { background-color: #00e68f; box-shadow: 0 0 30px rgba(0, 255, 153, 0.9); }
+        #difficultySelect button:nth-child(2):hover { background-color: #e6b800; box-shadow: 0 0 30px rgba(255, 204, 0, 0.9); }
+        #difficultySelect button:nth-child(3):hover { background-color: #e65c5c; box-shadow: 0 0 30px rgba(255, 102, 102, 0.9); }
+
+        #howToPlayScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 16, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 101;
+        }
+        #howToPlayScreen h2 {
+            font-size: 40px;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            margin-bottom: 30px;
+        }
+        #howToPlayScreen ul {
+            list-style: none;
+            padding: 0;
+            font-size: 20px;
+            color: #fff;
+            max-width: 800px;
+            text-align: left;
+            margin-bottom: 40px;
+        }
+        #howToPlayScreen ul li {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            padding-left: 30px;
+            position: relative;
+        }
+        #howToPlayScreen ul li::before {
+            content: "•";
+            color: #00ff00;
+            font-size: 24px;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        #howToPlayScreen .game-button {
+            background-color: #00ccff;
+            color: #000;
+            padding: 15px 30px;
+            font-size: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 204, 255, 0.7);
+        }
+        #howToPlayScreen .game-button:hover {
+            background-color: #00aaff;
+            box-shadow: 0 0 30px rgba(0, 204, 255, 0.9);
+        }
+
+        /* Message Overlay for Game Over/Win */
+        #messageOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 99;
+        }
+        #messageOverlay h2 {
+            font-size: 60px;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            margin-bottom: 20px;
+        }
+        #messageOverlay p {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 30px;
+        }
+        #messageOverlay .button-container {
+            display: flex;
+            gap: 20px;
+        }
+        #messageOverlay .game-button {
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: #00ccff;
+            color: #000;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 204, 255, 0.7);
+        }
+        #messageOverlay .game-button:hover {
+            background-color: #00aaff;
+            box-shadow: 0 0 30px rgba(0, 204, 255, 0.9);
+        }
+        #messageOverlay #gameOverMessage {
+            color: #ff4444;
+            text-shadow: 0 0 10px #ff4444;
+        }
+        #messageOverlay #levelWinMessage {
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+    </style>
+</head>
+<body>
+    <div id="uiOverlay">
+        <div id="infoPanel">
+            <h1>Gravity Ship</h1>
+            <p>Level: <span id="level">1</span></p>
+            <p>Fuel: <span id="fuel">5</span></p>
+            <p>Difficulty: <span id="difficultyText">Easy</span></p>
+            <button id="restartButton" class="game-button" style="margin-top: 15px;">Restart Level</button>
+        </div>
+        <div id="topRightButtons">
+            <button id="skipLevelButton" class="game-button" style="display: none;">Skip Level</button>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="startScreen" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 16, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100;">
+        <h1 style="font-size: 80px; color: #00ffff; text-shadow: 0 0 20px #00ffff; margin-bottom: 50px;">Gravity Ship</h1>
+        <button id="startButton" class="game-button">Start Game</button>
+        <button id="howToPlayButton" class="game-button" style="margin-top: 20px; transform: translate(-50%, -50%) translate(0, 100px);">How to Play</button>
+    </div>
+
+    <div id="difficultyScreen" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 16, 0.95); flex-direction: column; justify-content: center; align-items: center; z-index: 100;">
+        <h2 style="font-size: 50px; color: #00ffff; text-shadow: 0 0 10px #00ffff; margin-bottom: 40px;">Select Difficulty</h2>
+        <div id="difficultySelect">
+            <button onclick="setDifficulty('easy')">Easy</button>
+            <button onclick="setDifficulty('normal')">Normal</button>
+            <button onclick="setDifficulty('hard')">Hard</button>
+        </div>
+    </div>
+
+    <div id="howToPlayScreen" style="display: none;">
+        <h2>How to Play</h2>
+        <ul>
+            <li>**Goal**: Launch your spaceship through the portal using the planet's gravity.</li>
+            <li>**Launch**: Click and drag your spaceship to set direction and power, then release to launch.</li>
+            <li>**Gravity**: The planet has gravity! It will pull your spaceship, changing its trajectory.</li>
+            <li>**Fuel**: You have limited fuel! Each launch consumes 1 fuel. Run out of fuel and you'll game over.</li>
+            <li>**Game Over**: If your spaceship hits the planet, goes off-screen, or you run out of fuel, it's game over!</li>
+            <li>**Aliens (Normal/Hard)**: Avoid collision with alien ships in higher difficulties!</li>
+            <li>**Level Skip**: If a level seems impossible, you can skip it once every two levels.</li>
+        </ul>
+        <button onclick="hideHowToPlay()" class="game-button">Got it!</button>
+    </div>
+
+    <div id="messageOverlay" style="display: none;">
+        <h2 id="messageTitle"></h2>
+        <p id="messageText"></p>
+        <div class="button-container">
+            <button id="restartLevelButton" class="game-button">Restart Level</button>
+            <button id="nextLevelButton" class="game-button" style="display: none;">Next Level</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let canvasWidth = window.innerWidth * 0.9;
+        let canvasHeight = window.innerHeight * 0.9;
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+
+        // 게임 상태
+        let gameState = 'startScreen'; // startScreen, difficultySelect, howToPlay, ready, dragging, launched, win, gameover
+        let currentDifficulty = 'easy';
+        let level = 1;
+        let fuel = 5;
+        let lastSkippedLevel = 0; // 마지막으로 스킵한 레벨 (연속 스킵 방지용)
+        let planetOrbitCount = 0; // 행성 궤도를 돈 횟수 (이스터 에그)
+
+        // UI 요소
+        const levelUI = document.getElementById('level');
+        const fuelUI = document.getElementById('fuel');
+        const difficultyTextUI = document.getElementById('difficultyText');
+        const restartButton = document.getElementById('restartButton');
+        const skipLevelButton = document.getElementById('skipLevelButton');
+        const startScreen = document.getElementById('startScreen');
+        const startButton = document.getElementById('startButton');
+        const howToPlayButton = document.getElementById('howToPlayButton');
+        const difficultyScreen = document.getElementById('difficultyScreen');
+        const howToPlayScreen = document.getElementById('howToPlayScreen');
+        const messageOverlay = document.getElementById('messageOverlay');
+        const messageTitle = document.getElementById('messageTitle');
+        const messageText = document.getElementById('messageText');
+        const restartLevelButton = document.getElementById('restartLevelButton');
+        const nextLevelButton = document.getElementById('nextLevelButton');
+        
+        // 파티클
+        let particles = [];
+        const rainbowColors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'];
+        let spaceshipColorIndex = 0;
+
+        class Particle {
+            constructor(x, y, radius, color, velocity, life) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.color = color;
+                this.velocity = velocity;
+                this.alpha = 1;
+                this.life = life || 100; // 파티클 수명
+                this.decay = 1 / this.life;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+
+            update() {
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= this.decay;
+                this.draw();
+            }
+        }
+        
+        // 게임 객체
+        let spaceship = {
+            x: 0, y: 0, radius: 15,
+            vx: 0, vy: 0,
+            color: '#00ffff'
+        };
+
+        let portal = {
+            x: 0, y: 0, radius: 25,
+            angle: 0,
+            color: '#ff00ff'
+        };
+
+        let planet = {
+            x: 0, y: 0, radius: 50,
+            mass: 2000,
+            color: '#ffa500'
+        };
+
+        let aliens = []; // 외계인 배열
+
+        class Alien {
+            constructor(x, y, radius, orbitRadius, orbitSpeed, orbitAngle) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.color = '#8800ff';
+                this.orbitRadius = orbitRadius;
+                this.orbitSpeed = orbitSpeed;
+                this.orbitAngle = orbitAngle;
+                this.centerX = x; // 궤도 중심
+                this.centerY = y; // 궤도 중심
+            }
+
+            draw() {
+                ctx.save();
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 10;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 외계인 눈
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(this.x - this.radius * 0.3, this.y - this.radius * 0.3, this.radius * 0.2, 0, Math.PI * 2);
+                ctx.arc(this.x + this.radius * 0.3, this.y - this.radius * 0.3, this.radius * 0.2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(this.x - this.radius * 0.3, this.y - this.radius * 0.3, this.radius * 0.1, 0, Math.PI * 2);
+                ctx.arc(this.x + this.radius * 0.3, this.y - this.radius * 0.3, this.radius * 0.1, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+
+            update() {
+                this.orbitAngle += this.orbitSpeed;
+                this.x = this.centerX + Math.cos(this.orbitAngle) * this.orbitRadius;
+                this.y = this.centerY + Math.sin(this.orbitAngle) * this.orbitRadius;
+            }
+        }
+
+        // 마우스
+        let mouse = {
+            x: 0, y: 0,
+            down: false
+        };
+
+        // 레벨 생성 함수
+        function setupLevel(isRestart = false) {
+            gameState = 'ready';
+            
+            if (!isRestart) {
+                if (level === 1 || fuel <= 0) { // 새 게임 시작 또는 연료 부족 시
+                    fuel = 5;
+                }
+                spaceship.color = '#00ffff'; // 이스터 에그 색상 초기화
+                planetOrbitCount = 0;
+            }
+
+            let isSolvable = false;
+            while(!isSolvable) {
+                // 우주선 위치 랜덤
+                spaceship.x = Math.random() * (canvasWidth / 4) + canvasWidth * 0.05;
+                spaceship.y = Math.random() * (canvasHeight * 0.8) + canvasHeight * 0.1;
+                
+                // 포탈 위치 랜덤
+                portal.x = canvasWidth - Math.random() * (canvasWidth / 4) - canvasWidth * 0.05;
+                portal.y = Math.random() * (canvasHeight * 0.8) + canvasHeight * 0.1;
+                
+                // 행성 위치 및 크기 랜덤
+                planet.x = canvasWidth / 2 + (Math.random() - 0.5) * (canvasWidth / 3);
+                planet.y = canvasHeight / 2 + (Math.random() - 0.5) * (canvasHeight / 3);
+                planet.radius = Math.random() * 50 + 40;
+                planet.mass = planet.radius * 50;
+
+                aliens = [];
+                let numAliens = 0;
+                if (currentDifficulty === 'normal') numAliens = 2;
+                if (currentDifficulty === 'hard') numAliens = 4;
+
+                for (let i = 0; i < numAliens; i++) {
+                    let alienX, alienY, alienOrbitRadius, alienOrbitSpeed, alienOrbitAngle;
+                    let validAlienPosition = false;
+                    while (!validAlienPosition) {
+                        alienOrbitRadius = Math.random() * 100 + 50; // 외계인 궤도 반경
+                        alienOrbitSpeed = (Math.random() * 0.02 + 0.005) * (Math.random() < 0.5 ? 1 : -1); // 궤도 속도
+                        alienOrbitAngle = Math.random() * Math.PI * 2;
+                        
+                        // 외계인 초기 위치
+                        alienX = planet.x + Math.cos(alienOrbitAngle) * alienOrbitRadius;
+                        alienY = planet.y + Math.sin(alienOrbitAngle) * alienOrbitRadius;
+
+                        // 외계인이 행성, 우주선, 포탈과 너무 가깝지 않게
+                        const distAlienPlanet = Math.hypot(alienX - planet.x, alienY - planet.y);
+                        const distAlienShip = Math.hypot(alienX - spaceship.x, alienY - spaceship.y);
+                        const distAlienPortal = Math.hypot(alienX - portal.x, alienY - portal.y);
+
+                        if (distAlienPlanet > planet.radius + 50 &&
+                            distAlienShip > spaceship.radius + 50 &&
+                            distAlienPortal > portal.radius + 50) {
+                            validAlienPosition = true;
+                        }
+                    }
+                    aliens.push(new Alien(alienX, alienY, 12, alienOrbitRadius, alienOrbitSpeed, alienOrbitAngle));
+                }
+                
+                // 객체간 최소 거리 확인 (솔루션 가능성을 높이기 위함)
+                const distPlanetShip = Math.hypot(planet.x - spaceship.x, planet.y - spaceship.y);
+                const distPlanetPortal = Math.hypot(planet.x - portal.x, planet.y - portal.y);
+                const distShipPortal = Math.hypot(spaceship.x - portal.x, spaceship.y - portal.y);
+                
+                if (distPlanetShip > planet.radius + spaceship.radius + 100 && 
+                    distPlanetPortal > planet.radius + portal.radius + 100 &&
+                    distShipPortal > 200) { // 우주선과 포탈도 너무 가깝지 않게
+                    isSolvable = true;
+                }
+            }
+            
+            spaceship.vx = 0;
+            spaceship.vy = 0;
+            
+            updateUI();
+            hideMessageOverlay(); // 메시지 오버레이 숨기기
+            skipLevelButton.style.display = (level - lastSkippedLevel < 2 && level > 1) ? 'block' : 'none'; // 연속 2회 스킵 방지
+        }
+
+        function updateUI() {
+            levelUI.textContent = level;
+            fuelUI.textContent = fuel;
+            difficultyTextUI.textContent = currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1);
+        }
+
+        // 그리기 함수
+        function draw() {
+            // 배경
+            ctx.fillStyle = '#000010';
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+            
+            // 파티클 그리기
+            particles.forEach((particle, index) => {
+                if (particle.alpha <= 0) {
+                    particles.splice(index, 1);
+                } else {
+                    particle.update();
+                }
+            });
+
+            // 행성
+            drawPlanet();
+
+            // 포탈
+            drawPortal();
+
+            // 외계인
+            aliens.forEach(alien => alien.draw());
+
+            // 우주선
+            drawSpaceship();
+            
+            // 궤적 예측선 (드래그 중일 때)
+            if (gameState === 'dragging') {
+                drawTrajectory();
+            }
+        }
+        
+        function drawPlanet() {
+            ctx.save();
+            // 행성 본체
+            const gradient = ctx.createRadialGradient(planet.x, planet.y, planet.radius * 0.5, planet.x, planet.y, planet.radius);
+            gradient.addColorStop(0, planet.color);
+            gradient.addColorStop(1, '#000');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(planet.x, planet.y, planet.radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 행성 대기광
+            ctx.shadowColor = planet.color;
+            ctx.shadowBlur = 30;
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawPortal() {
+            ctx.save();
+            ctx.translate(portal.x, portal.y);
+            ctx.rotate(portal.angle);
+
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                const radius = portal.radius - (i * 4);
+                const alpha = 1 - (i / 5);
+                ctx.strokeStyle = `rgba(255, 0, 255, ${alpha})`;
+                ctx.lineWidth = 3;
+                ctx.arc(0, 0, radius, (i * Math.PI / 2.5), (i * Math.PI / 2.5) + Math.PI * 1.5);
+                ctx.stroke();
+            }
+            ctx.restore();
+            portal.angle += 0.02;
+        }
+
+        function drawSpaceship() {
+            ctx.save();
+            ctx.translate(spaceship.x, spaceship.y);
+
+            // 우주선이 움직일 때 방향에 따라 회전
+            let currentAngle = -Math.PI / 2; // 기본적으로 위를 보게 설정
+            if (gameState === 'launched' || gameState === 'dragging') {
+                const angle = Math.atan2(spaceship.vy !== 0 ? spaceship.vy : -(mouse.y - spaceship.y), spaceship.vx !== 0 ? spaceship.vx : -(mouse.x - spaceship.x));
+                currentAngle = angle;
+            }
+            ctx.rotate(currentAngle);
+            
+            // 우주선 본체
+            ctx.fillStyle = spaceship.color;
+            ctx.shadowColor = spaceship.color;
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.moveTo(0, -spaceship.radius);
+            ctx.lineTo(spaceship.radius * 0.8, spaceship.radius * 0.8);
+            ctx.lineTo(-spaceship.radius * 0.8, spaceship.radius * 0.8);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function drawTrajectory() {
+            const startX = spaceship.x;
+            const startY = spaceship.y;
+            const dx = mouse.x - startX;
+            const dy = mouse.y - startY;
+
+            // 가상 우주선으로 궤적 시뮬레이션
+            let simShip = {
+                x: startX,
+                y: startY,
+                vx: -dx * 0.05,
+                vy: -dy * 0.05
+            };
+
+            ctx.save();
+            ctx.setLineDash([2, 5]);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(simShip.x, simShip.y);
+
+            for (let i = 0; i < 200; i++) { // 예측 스텝 증가
+                const dPlanet = Math.hypot(simShip.x - planet.x, simShip.y - planet.y);
+                if (dPlanet < planet.radius + spaceship.radius) break; // 행성에 충돌하면 예측 중단
+
+                const gravity = planet.mass / (dPlanet * dPlanet);
+                const angle = Math.atan2(planet.y - simShip.y, planet.x - simShip.x);
+                simShip.vx += gravity * Math.cos(angle);
+                simShip.vy += gravity * Math.sin(angle);
+                simShip.x += simShip.vx;
+                simShip.y += simShip.vy;
+                ctx.lineTo(simShip.x, simShip.y);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // 메시지 오버레이 표시
+        function showMessageOverlay(title, text, isWin) {
+            messageOverlay.style.display = 'flex';
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+            messageTitle.id = isWin ? 'levelWinMessage' : 'gameOverMessage';
+            nextLevelButton.style.display = isWin ? 'block' : 'none';
+        }
+
+        // 메시지 오버레이 숨기기
+        function hideMessageOverlay() {
+            messageOverlay.style.display = 'none';
+        }
+
+        // 업데이트 함수
+        function update() {
+            if (gameState !== 'launched') return;
+
+            // 중력 계산
+            const dx = planet.x - spaceship.x;
+            const dy = planet.y - spaceship.y;
+            const distance = Math.hypot(dx, dy);
+            
+            // 행성 궤도 이스터 에그 감지
+            if (distance < planet.radius + spaceship.radius + 5 && distance > planet.radius + spaceship.radius - 5) {
+                // 특정 각도를 지날 때마다 카운트 (한 바퀴 돌았는지 대략적으로 확인)
+                const currentAngle = Math.atan2(spaceship.y - planet.y, spaceship.x - planet.x);
+                if (Math.abs(currentAngle - Math.PI) < 0.1 && spaceship.vy > 0) { // 행성 아래를 지날 때
+                    planetOrbitCount++;
+                    if (planetOrbitCount >= 5) {
+                        spaceship.color = rainbowColors[spaceshipColorIndex];
+                        spaceshipColorIndex = (spaceshipColorIndex + 1) % rainbowColors.length;
+                    }
+                }
+            }
+
+
+            if (distance > spaceship.radius + planet.radius) {
+                const gravityForce = planet.mass / (distance * distance);
+                const angle = Math.atan2(dy, dx);
+                
+                // 가속도 적용
+                spaceship.vx += gravityForce * Math.cos(angle);
+                spaceship.vy += gravityForce * Math.sin(angle);
+                
+                // 위치 업데이트
+                spaceship.x += spaceship.vx;
+                spaceship.y += spaceship.vy;
+
+                // 부스터 파티클 효과 (로켓 엔진 위치에서)
+                const angleRad = Math.atan2(-spaceship.vy, -spaceship.vx); // 로켓 진행 반대 방향
+                const exhaustOffset = spaceship.radius * 0.9; // 엔진이 우주선 뒤쪽이라고 가정
+                const exhaustX = spaceship.x + Math.cos(angleRad) * exhaustOffset;
+                const exhaustY = spaceship.y + Math.sin(angleRad) * exhaustOffset;
+
+                // 랜덤한 스프레드 추가
+                const spreadAngle = Math.random() * Math.PI / 4 - Math.PI / 8; // -22.5 ~ 22.5도
+                const particleAngle = angleRad + spreadAngle;
+
+                particles.push(new Particle(
+                    exhaustX, 
+                    exhaustY, 
+                    Math.random() * 2 + 1, 
+                    '#ffaa00', 
+                    {
+                        x: Math.cos(particleAngle) * (Math.random() * 2 + 1), 
+                        y: Math.sin(particleAngle) * (Math.random() * 2 + 1)
+                    },
+                    50 // 짧은 수명
+                ));
+
+            } else {
+                // 행성 충돌
+                gameState = 'gameover';
+                showMessageOverlay('GAME OVER', `You crashed into the planet at Level ${level}.`, false);
+            }
+
+            // 포탈 진입 확인
+            if (Math.hypot(spaceship.x - portal.x, spaceship.y - portal.y) < portal.radius) {
+                gameState = 'win';
+                showMessageOverlay('LEVEL CLEAR!', `Proceed to Level ${level + 1}.`, true);
+            }
+
+            // 화면 밖으로 나갔는지 확인
+            if (spaceship.x < -spaceship.radius * 2 || spaceship.x > canvasWidth + spaceship.radius * 2 || 
+                spaceship.y < -spaceship.radius * 2 || spaceship.y > canvasHeight + spaceship.radius * 2) {
+                gameState = 'gameover';
+                showMessageOverlay('GAME OVER', `You flew off into space at Level ${level}.`, false);
+            }
+
+            // 외계인 충돌 확인
+            for (const alien of aliens) {
+                if (Math.hypot(spaceship.x - alien.x, spaceship.y - alien.y) < spaceship.radius + alien.radius) {
+                    gameState = 'gameover';
+                    showMessageOverlay('GAME OVER', `You collided with an alien at Level ${level}.`, false);
+                    break;
+                }
+            }
+
+            // 외계인 위치 업데이트
+            aliens.forEach(alien => alien.update());
+        }
+        
+        // 게임 루프
+        function gameLoop() {
+            if (gameState === 'launched') {
+                update();
+            }
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // 이벤트 리스너
+        canvas.addEventListener('mousedown', (e) => {
+            if (gameState === 'ready') {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                if (Math.hypot(mouseX - spaceship.x, mouseY - spaceship.y) < spaceship.radius) {
+                    mouse.down = true;
+                    gameState = 'dragging';
+                }
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (gameState === 'dragging') {
+                const rect = canvas.getBoundingClientRect();
+                mouse.x = e.clientX - rect.left;
+                mouse.y = e.clientY - rect.top;
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            if (gameState === 'dragging') {
+                mouse.down = false;
+                gameState = 'launched';
+                fuel--;
+                updateUI();
+                
+                const dx = mouse.x - spaceship.x;
+                const dy = mouse.y - spaceship.y;
+                
+                // 드래그 방향과 거리에 따라 속도 결정
+                spaceship.vx = -dx * 0.05;
+                spaceship.vy = -dy * 0.05;
+
+                if (fuel <= 0 && gameState !== 'win') {
+                    // 연료가 없어도 당장 게임오버되지 않고, 우주선이 멈추거나 충돌할 때 게임오버 메시지를 띄움
+                    // 3초 후에도 성공 못하면 게임 오버 처리
+                    setTimeout(() => {
+                        if (gameState !== 'win' && gameState !== 'gameover') {
+                            gameState = 'gameover';
+                            showMessageOverlay('GAME OVER', `You ran out of fuel at Level ${level}.`, false);
+                        }
+                    }, 3000); 
+                }
+            }
+        });
+        
+        window.addEventListener('resize', () => {
+            canvasWidth = window.innerWidth * 0.9;
+            canvasHeight = window.innerHeight * 0.9;
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            if (gameState !== 'startScreen' && gameState !== 'difficultySelect' && gameState !== 'howToPlay') {
+                setupLevel(); // 캔버스 크기 변경 시 레벨 재설정
+            }
+        });
+
+        // UI 버튼 핸들러
+        startButton.addEventListener('click', () => {
+            startScreen.style.display = 'none';
+            difficultyScreen.style.display = 'flex';
+        });
+
+        howToPlayButton.addEventListener('click', () => {
+            startScreen.style.display = 'none';
+            howToPlayScreen.style.display = 'flex';
+            gameState = 'howToPlay';
+        });
+
+        function hideHowToPlay() {
+            howToPlayScreen.style.display = 'none';
+            startScreen.style.display = 'flex';
+            gameState = 'startScreen';
+        }
+
+        function setDifficulty(difficulty) {
+            currentDifficulty = difficulty;
+            difficultyScreen.style.display = 'none';
+            setupLevel(); // 게임 시작
+        }
+
+        restartButton.addEventListener('click', () => {
+            setupLevel(true); // 현재 레벨에서 재시작
+        });
+
+        skipLevelButton.addEventListener('click', () => {
+            if (level - lastSkippedLevel < 2) { // 연속 2회 스킵 방지
+                level++;
+                lastSkippedLevel = level;
+                fuel = 5; // 스킵 시 연료 초기화
+                setupLevel();
+            } else {
+                alert("You can only skip a level once every two levels!");
+            }
+        });
+
+        restartLevelButton.addEventListener('click', () => {
+            hideMessageOverlay();
+            setupLevel(true); // 현재 레벨에서 재시작
+        });
+
+        nextLevelButton.addEventListener('click', () => {
+            hideMessageOverlay();
+            level++;
+            fuel = 5; // 다음 레벨로 갈 때 연료 초기화
+            setupLevel();
+        });
+
+
+        // 게임 시작
+        gameLoop();
+    </script>
+</body>
+</html>
