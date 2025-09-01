@@ -205,7 +205,9 @@
                 newConfig.spaceship = { x: Math.random()*(canvas.width/4)+marginX, y: Math.random()*(canvas.height-2*marginY)+marginY };
                 newConfig.portal = { x: canvas.width-(Math.random()*(canvas.width/4)+marginX), y: Math.random()*(canvas.height-2*marginY)+marginY };
                 newConfig.planets = [];
-                let numPlanets = currentDifficulty === 'hard' ? 3 : (currentDifficulty === 'normal' ? 2 : 1);
+                // --- MODIFIED LINE ---
+                let numPlanets = currentDifficulty === 'hard' ? 10 : (currentDifficulty === 'normal' ? 5 : 3);
+                // --- END MODIFIED LINE ---
                 for (let i = 0; i < numPlanets; i++) {
                     let p, validPosition = false;
                     while (!validPosition) {
